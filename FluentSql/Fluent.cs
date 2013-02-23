@@ -24,11 +24,9 @@ namespace FluentSql
             actions.ToList().ForEach(action => action(connection));
         }
 
-
-
         public static NonQueryStatement WithNonQueryStatement(this NonQueryStatement statement, String newStatement)
         {
-            var newQueries = statement.Actions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
+            var newQueries = statement.NonQueryActions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
             return new NonQueryStatement(statement.ConnectionString, newQueries);
         }
 
@@ -41,12 +39,12 @@ namespace FluentSql
 
         public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this NonQueryStatement statement, String newQueryStatement)
         {
-            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.Actions, newQueryStatement);
+            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, newQueryStatement);
         }
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this NonQueryStatement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
-            return new ReaderQueryStatement<T>(statement.ConnectionString, statement.Actions, newQueryStatement, readerFunction);
+            return new ReaderQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, newQueryStatement, readerFunction);
         }
 
         /*          */
@@ -63,12 +61,12 @@ namespace FluentSql
         /*public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
         {
             return new ScalarQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement);
-        }
+        }*/
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this Statement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
             return new ReaderQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement, readerFunction);
-        }*/
+        }
 
         public static IEnumerable<NonQueryAction> AsNonQueryActionList(this String statement)
         {

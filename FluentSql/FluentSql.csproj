@@ -50,6 +50,9 @@
   <ItemGroup>
     <Compile Include="ConnectionProvider.cs" />
     <Compile Include="Delegates.cs" />
+    <Compile Include="DependencyQueryStatement.cs" />
+    <Compile Include="ExecutableStatement.cs" />
+    <Compile Include="ExecutionHelper.cs" />
     <Compile Include="Fluent.cs" />
     <Compile Include="NonQueryStatement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

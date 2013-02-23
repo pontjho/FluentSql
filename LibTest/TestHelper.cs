@@ -20,5 +20,12 @@ namespace LibTest
                 return cmd.ExecuteScalar().ToString();
             }
         }
+
+        public static void CreateDatabase(SqlConnection conn, String databaseName)
+        {
+            var command = conn.CreateCommand();
+            command.CommandText = String.Format("create database {0}", databaseName);
+            command.ExecuteNonQuery();
+        }
     }
 }

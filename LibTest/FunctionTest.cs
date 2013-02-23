@@ -24,7 +24,7 @@ namespace LibTest
         [TestMethod]
         public void GivenAQueryToCreateADbWithASingleTable_WhenExecutingTheQuery_TheMasterDbWillContainTheTable()
         {
-            NonQueryAction function = CurryExtension.Curry<SqlConnection, String>(CreateDatabase, "Test").Invoke;
+            NonQueryAction function = CurryExtension.Curry<SqlConnection, String>(TestHelper.CreateDatabase, "Test").Invoke;
             var query = Fluent.Default.WithNonQueryAction(function)
                                       .WithNonQueryStatement("use Test")
                                       .WithNonQueryStatement("create table TestTable (a int, b int)");
@@ -32,13 +32,6 @@ namespace LibTest
             query.Execute();
 
             Assert.AreEqual<String>("TestTable", TestHelper.GetTable());
-        }
-
-        void CreateDatabase(SqlConnection conn, String databaseName)
-        {
-            var command = conn.CreateCommand();
-            command.CommandText = String.Format("create database {0}", databaseName);
-            command.ExecuteNonQuery();
         }
     }
 }

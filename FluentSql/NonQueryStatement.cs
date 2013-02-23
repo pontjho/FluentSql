@@ -7,23 +7,11 @@ using System.Text;
 namespace FluentSql
 {
 
-    public class NonQueryStatement : Statement
+    public class NonQueryStatement : ExecutableStatement
     {
-        internal IEnumerable<NonQueryAction> Actions { get; private set; }
-
-        internal NonQueryStatement(String connectionString, IEnumerable<NonQueryAction> actions)
-            : base(connectionString)
+        internal NonQueryStatement(String connectionString, IEnumerable<NonQueryAction> nonQueryActions)
+            : base(connectionString, nonQueryActions)
         {
-            this.Actions = new List<NonQueryAction>(actions);
-        }
-
-        public void Execute()
-        {
-            using (var cn = new SqlConnection(this.ConnectionString))
-            {
-                cn.Open();
-                Fluent.ExecuteBulk(this.Actions, cn);
-            }
         }
     }
 }

@@ -56,6 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FunctionTest.cs" />
     <Compile Include="TestHelper.cs" />
+    <Compile Include="DependenciesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FluentSql\FluentSql.csproj">
