@@ -9,14 +9,14 @@ namespace FluentSql
 
     public class ReaderQueryStatement<T>
     {
-        private List<String> NonQueryActions { get; set; }
+        private List<NonQueryAction> NonQueryActions { get; set; }
         private String ConnectionString { get; set; }
         private String ScalarAction { get; set; }
         private Func<SqlDataReader, T> ParseLine { get; set; }
 
-        internal ReaderQueryStatement(String connectionString, IEnumerable<String> nonQueryActions, String scalarAction, Func<SqlDataReader, T> lineReader)
+        internal ReaderQueryStatement(String connectionString, IEnumerable<NonQueryAction> nonQueryActions, String scalarAction, Func<SqlDataReader, T> lineReader)
         {
-            this.NonQueryActions = new List<String>(nonQueryActions);
+            this.NonQueryActions = new List<NonQueryAction>(nonQueryActions);
             this.ConnectionString = connectionString;
             this.ScalarAction = scalarAction;
             this.ParseLine = lineReader;
@@ -27,7 +27,7 @@ namespace FluentSql
             using (var cn = new SqlConnection(this.ConnectionString))
             {
                 cn.Open();
-                NonQueryActions.ToList().ForEach(actionText => Fluent.ExecuteSqlCode(actionText, cn));
+                NonQueryActions.ExecuteBulk(cn);
 
                 var cmd = new SqlCommand(this.ScalarAction, cn);
 

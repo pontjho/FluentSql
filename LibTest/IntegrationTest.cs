@@ -49,6 +49,20 @@ namespace LibTest
         }
 
         [TestMethod]
+        public void GivenAQueryToGetTheTablesFromTheDatabase_WhenExecutingTheQueryAsScalar_TheStringValueIsReturned()
+        {
+            var query = Fluent.Default.WithNonQueryStatement("create database Test")
+                                      .WithNonQueryStatement("use Test")
+                                      .WithNonQueryStatement("create table TestTable (a varchar(10))")
+                                      .WithNonQueryStatement("insert into TestTable (a) values ('hello')")
+                                      .WithScalarQueryStatement<String>("select a from TestTable");
+
+            var result = query.Execute();
+
+            Assert.AreEqual<String>("hello", result);
+        }
+
+        [TestMethod]
         public void GivenAQueryToGetTheTablesFromTheDatabase_WhenExecutingTheQueryAsResultSet_TheValuesAreReturned()
         {
             var query = Fluent.Default.WithNonQueryStatement("create database Test")

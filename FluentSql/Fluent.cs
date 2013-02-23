@@ -13,15 +13,30 @@ namespace FluentSql
         private static String config = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
         public static Statement Default = new Statement(config);
 
-        internal static void ExecuteSqlCode(string sqlCommandText, SqlConnection conn)
+        internal static void ExecuteSqlCode(SqlConnection conn, string sqlCommandText)
         {
             var cmd = new SqlCommand(sqlCommandText, conn);
             cmd.ExecuteNonQuery();
         }
+
+        internal static void ExecuteBulk(this IEnumerable<NonQueryAction> actions, SqlConnection connection)
+        {
+            actions.ToList().ForEach(action => action(connection));
+        }
+
+
+
         public static NonQueryStatement WithNonQueryStatement(this NonQueryStatement statement, String newStatement)
         {
-            var newQueries = statement.Actions.Union(new String[] { newStatement });
+            var newQueries = statement.Actions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
             return new NonQueryStatement(statement.ConnectionString, newQueries);
+        }
+
+        private static NonQueryAction AsNonQueryAction(this String newStatement)
+        {
+            Action<SqlConnection> ya = FunctionalLib.CurryExtension.Curry<SqlConnection, String>(Fluent.ExecuteSqlCode, newStatement);
+            NonQueryAction newAction = ya.Invoke;
+            return newAction;
         }
 
         public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this NonQueryStatement statement, String newQueryStatement)
@@ -37,56 +52,33 @@ namespace FluentSql
         /*          */
         public static NonQueryStatement WithNonQueryStatement(this Statement statement, String newStatement)
         {
-            var newQueries = new String[] { newStatement };
-            return new NonQueryStatement(statement.ConnectionString, newQueries);
+            return new NonQueryStatement(statement.ConnectionString, newStatement.AsNonQueryActionList());
         }
 
-        public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
+        public static NonQueryStatement WithNonQueryAction(this Statement statement, NonQueryAction action)
         {
-            var newQueries = new String[] { newQueryStatement };
-            return new ScalarQueryStatement<T>(statement.ConnectionString, newQueries, newQueryStatement);
+            return new NonQueryStatement(statement.ConnectionString, action.AsEnumerable());
+        }
+
+        /*public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
+        {
+            return new ScalarQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement);
         }
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this Statement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
-            var newQueries = new String[] { newQueryStatement };
-            return new ReaderQueryStatement<T>(statement.ConnectionString, newQueries, newQueryStatement, readerFunction);
-        }
-    }
+            return new ReaderQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement, readerFunction);
+        }*/
 
-    public class ReaderQueryStatement<T>
-    {
-        private List<String> NonQueryActions { get; set; }
-        private String ConnectionString { get; set; }
-        private String ScalarAction { get; set; }
-        private Func<SqlDataReader, T> ParseLine { get; set; }
-
-        internal ReaderQueryStatement(String connectionString, IEnumerable<String> nonQueryActions, String scalarAction, Func<SqlDataReader, T> lineReader)
+        public static IEnumerable<NonQueryAction> AsNonQueryActionList(this String statement)
         {
-            this.NonQueryActions = new List<String>(nonQueryActions);
-            this.ConnectionString = connectionString;
-            this.ScalarAction = scalarAction;
-            this.ParseLine = lineReader;
+            return statement.AsNonQueryAction().AsEnumerable();
         }
 
-        public IEnumerable<T> Execute()
+        private static IEnumerable<T> AsEnumerable<T>(this T newQueryStatement)
         {
-            using (var cn = new SqlConnection(this.ConnectionString))
-            {
-                cn.Open();
-                NonQueryActions.ToList().ForEach(actionText => Fluent.ExecuteSqlCode(actionText, cn));
-
-                var cmd = new SqlCommand(this.ScalarAction, cn);
-
-                var resultSet = cmd.ExecuteReader();
-
-                var theReturn = new List<T>();
-                while (resultSet.Read())
-                {
-                    theReturn.Add(ParseLine(resultSet));
-                }
-                return theReturn;
-            }
+            var newQueries = new T[] { newQueryStatement };
+            return newQueries;
         }
     }
 }

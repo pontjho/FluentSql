@@ -3,11 +3,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{01190000-919F-4FC7-BBF0-32D3C461CC81}</ProjectGuid>
+    <ProjectGuid>{0948F282-B662-4E75-B88E-D306274D295D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LibTest</RootNamespace>
-    <AssemblyName>LibTest</AssemblyName>
+    <RootNamespace>FunctionalLib</RootNamespace>
+    <AssemblyName>FunctionalLib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -36,8 +36,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -45,32 +43,12 @@
         <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
       </ItemGroup>
     </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
+    <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="IntegrationTest.cs" />
+    <Compile Include="CurryExtension.cs" />
+    <Compile Include="FunctionalHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FunctionTest.cs" />
-    <Compile Include="TestHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FluentSql\FluentSql.csproj">
-      <Project>{e29f3da2-d1ad-468c-862f-ef72774c8cbf}</Project>
-      <Name>FluentSql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FunctionalLib\FunctionalLib.csproj">
-      <Project>{0948f282-b662-4e75-b88e-d306274d295d}</Project>
-      <Name>FunctionalLib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

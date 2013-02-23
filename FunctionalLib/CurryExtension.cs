@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ConwayFunctional
+namespace FunctionalLib
 {
-    public static class FunctionHelper
+    public static class CurryExtension
     {
+        public static Action<Input1> Curry<Input1, Input2>(Action<Input1, Input2> inputFunction, Input2 parameter)
+        {
+            return (x) => inputFunction(x, parameter);
+        }
+
         public static Func<RType> Curry<IType, RType>(Func<IType, RType> inputFunction, IType parameter)
         {
             return () => inputFunction(parameter);
@@ -20,16 +26,6 @@ namespace ConwayFunctional
         public static Func<IType1, RType> Curry2<IType1, IType2, RType>(Func<IType1, IType2, RType> inputFunction, IType2 parameter)
         {
             return (x) => inputFunction(x, parameter);
-        }
-
-        public static Func<IType1, RType> Compose<IType1, IType2, RType>(Func<IType1, IType2> func1, Func<IType2, RType> func2)
-        {
-            return (x) => func2(func1(x));
-        }
-
-        public static Func<IType1, RType> Compose<IType1, IType2, IType3, RType>(Func<IType1, IType2> func1, Func<IType2, IType3> func2, Func<IType3, RType> func3)
-        {
-            return (x) => func3(func2(func1(x)));
         }
     }
 }
