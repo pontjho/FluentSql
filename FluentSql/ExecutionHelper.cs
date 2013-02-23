@@ -57,7 +57,7 @@ namespace FluentSql
             }
         }
 
-        public static void Execute(this DependencyNonQueryStatement statement)
+        /*public static void Execute(this DependencyNonQueryStatement statement)
         {
             using (var cn = new SqlConnection(statement.ConnectionString))
             {
@@ -70,6 +70,6 @@ namespace FluentSql
 
                 Fluent.ExecuteSqlCode(cn, finalQuery);
             }
-        }
+        }*/
     }
 }

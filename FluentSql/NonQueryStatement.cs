@@ -9,8 +9,10 @@ namespace FluentSql
 
     public class NonQueryStatement : ExecutableStatement
     {
-        internal NonQueryStatement(String connectionString, IEnumerable<NonQueryAction> nonQueryActions)
-            : base(connectionString, nonQueryActions)
+        internal NonQueryStatement(String connectionString,
+                                   IEnumerable<NonQueryAction> nonQueryActions,
+                                   IEnumerable<ScalarQueryStatement<Object>> dependencies)
+            : base(connectionString, nonQueryActions, dependencies)
         {
         }
     }

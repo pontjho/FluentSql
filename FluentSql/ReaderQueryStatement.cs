@@ -12,8 +12,12 @@ namespace FluentSql
         internal String ScalarAction { get; private set; }
         internal Func<SqlDataReader, T> ParseLine { get; private set; }
 
-        internal ReaderQueryStatement(String connectionString, IEnumerable<NonQueryAction> nonQueryActions, String scalarAction, Func<SqlDataReader, T> lineReader)
-            : base(connectionString, nonQueryActions)
+        internal ReaderQueryStatement(String connectionString, 
+                                      IEnumerable<NonQueryAction> nonQueryActions, 
+                                      String scalarAction,
+                                      Func<SqlDataReader, T> lineReader,
+                                      IEnumerable<ScalarQueryStatement<Object>> dependencies)
+            : base(connectionString, nonQueryActions, dependencies)
         {
             this.ScalarAction = scalarAction;
             this.ParseLine = lineReader;
