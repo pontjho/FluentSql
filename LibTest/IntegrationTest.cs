@@ -31,7 +31,7 @@ namespace LibTest
 
             query.Execute();
 
-            Assert.AreEqual<String>("TestTable", GetTable());
+            Assert.AreEqual<String>("TestTable", TestHelper.GetTable());
         }
 
         [TestMethod]
@@ -69,16 +69,6 @@ namespace LibTest
         public Tuple<int, String> TheReader(SqlDataReader reader)
         {
             return Tuple.Create(reader.GetInt32(0), reader.GetString(1));
-        }
-
-        public String GetTable()
-        {
-            using (var cn = new SqlConnection(ConfigurationManager.ConnectionStrings["Default"].ConnectionString))
-            {
-                cn.Open();
-                var cmd = new SqlCommand("SELECT TABLE_NAME FROM Test.information_schema.tables", cn);
-                return cmd.ExecuteScalar().ToString();
-            }
         }
     }
 }
