@@ -24,7 +24,7 @@ namespace FluentSql
         {
             if (SiblingStatement != null)
                 SiblingStatement.ExecuteSiblings(cn);
-            this.Action(cn);
+            this.Action(cn, base.EvaluateDependencies(cn));
         }
 
         public void Execute()
@@ -34,7 +34,7 @@ namespace FluentSql
                 cn.Open();
                 if (SiblingStatement != null)
                     SiblingStatement.ExecuteSiblings(cn);
-                this.Action(cn);
+                this.Action(cn, base.EvaluateDependencies(cn));
             }
         }
     }

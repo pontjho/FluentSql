@@ -19,24 +19,28 @@ namespace FluentSql
             this.ScalarAction = scalarAction;
         }
 
+        public T Execute(SqlConnection cn)
+        {
+            if (this.SiblingStatement != null)
+                this.SiblingStatement.ExecuteSiblings(cn);
+
+            var cmd = new SqlCommand(this.ScalarAction, cn);
+            try
+            {
+                return (T)(Object)Int32.Parse(cmd.ExecuteScalar().ToString());
+            }
+            catch (FormatException)
+            {
+                return (T)cmd.ExecuteScalar();
+            }
+        }
+
         public T Execute()
         {
             using (var cn = new SqlConnection(this.ConnectionString))
             {
                 cn.Open();
-
-                if(this.SiblingStatement != null)
-                    this.SiblingStatement.ExecuteSiblings(cn);
-
-                var cmd = new SqlCommand(this.ScalarAction, cn);
-                try
-                {
-                    return (T)(Object)Int32.Parse(cmd.ExecuteScalar().ToString());
-                }
-                catch (FormatException)
-                {
-                    return (T)cmd.ExecuteScalar();
-                }
+                return Execute(cn);
             }
         }
     }

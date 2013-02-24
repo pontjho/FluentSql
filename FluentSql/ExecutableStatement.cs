@@ -20,5 +20,10 @@ namespace FluentSql
             this.SiblingStatement = siblingStatement;
             this.Dependencies = dependencies;
         }
+
+        internal Object[] EvaluateDependencies(SqlConnection cn)
+        {
+            return this.Dependencies.Select(dep => dep.Execute(cn)).ToArray();
+        }
     }
 }
