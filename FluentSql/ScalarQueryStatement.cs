@@ -26,7 +26,7 @@ namespace FluentSql
                 cn.Open();
 
                 if(this.SiblingStatement != null)
-                    this.SiblingStatement.Execute();
+                    this.SiblingStatement.ExecuteSiblings(cn);
 
                 var cmd = new SqlCommand(this.ScalarAction, cn);
                 try
