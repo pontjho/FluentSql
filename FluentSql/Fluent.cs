@@ -62,6 +62,11 @@ namespace FluentSql
             return new NonQueryStatement(statement.ConnectionString, null, new ScalarQueryStatement<Object>[0], newStatement.AsNonQueryAction());
         }
 
+        public static NonQueryStatement WithNonQueryAction(this NonQueryStatement statement, NonQueryAction action)
+        {
+            return new NonQueryStatement(statement.ConnectionString, statement, new ScalarQueryStatement<Object>[0], action);
+        }
+
         public static NonQueryStatement WithNonQueryAction(this Statement statement, NonQueryAction action)
         {
             return new NonQueryStatement(statement.ConnectionString, null, new ScalarQueryStatement<Object>[0], action);

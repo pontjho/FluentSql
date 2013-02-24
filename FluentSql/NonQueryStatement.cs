@@ -32,9 +32,14 @@ namespace FluentSql
             using (var cn = new SqlConnection(this.ConnectionString))
             {
                 cn.Open();
-                if (SiblingStatement != null)
-                    SiblingStatement.ExecuteSiblings(cn);
-                this.Action(cn, base.EvaluateDependencies(cn));
+                //using (var trans = cn.BeginTransaction())
+                {
+                    if (SiblingStatement != null)
+                        SiblingStatement.ExecuteSiblings(cn);
+                    this.Action(cn, base.EvaluateDependencies(cn));
+
+                    //trans.Commit();
+                }
             }
         }
     }
