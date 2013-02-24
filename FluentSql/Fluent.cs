@@ -19,15 +19,18 @@ namespace FluentSql
             cmd.ExecuteNonQuery();
         }
 
-        internal static void ExecuteBulk(this IEnumerable<NonQueryAction> actions, SqlConnection connection)
+        /*internal static void ExecuteBulk(this ExecutableStatement head, SqlConnection connection)
         {
-            actions.ToList().ForEach(action => action(connection));
-        }
+            //actions.ToList().ForEach(action => action(connection));
+            if (head.SiblingStatement != null)
+                ExecuteBulk(head.SiblingStatement, connection);
+            head.Action();
+        }*/
 
         public static NonQueryStatement WithNonQueryStatement(this NonQueryStatement statement, String newStatement)
         {
-            var newQueries = statement.NonQueryActions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
-            return new NonQueryStatement(statement.ConnectionString, newQueries, statement.Dependencies);
+            //var newQueries = statement.NonQueryActions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
+            return new NonQueryStatement(statement.ConnectionString, statement, statement.Dependencies, newStatement.AsNonQueryAction());
         }
 
         private static NonQueryAction AsNonQueryAction(this String newStatement)
@@ -39,23 +42,23 @@ namespace FluentSql
 
         public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this NonQueryStatement statement, String newQueryStatement)
         {
-            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, newQueryStatement, statement.Dependencies);
+            return new ScalarQueryStatement<T>(statement.ConnectionString, statement, newQueryStatement, statement.Dependencies);
         }
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this NonQueryStatement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
-            return new ReaderQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, newQueryStatement, readerFunction, statement.Dependencies);
+            return new ReaderQueryStatement<T>(statement.ConnectionString, statement, newQueryStatement, readerFunction, statement.Dependencies);
         }
 
         /*          */
         public static NonQueryStatement WithNonQueryStatement(this Statement statement, String newStatement)
         {
-            return new NonQueryStatement(statement.ConnectionString, newStatement.AsNonQueryActionList(), new ScalarQueryStatement<Object>[0]);
+            return new NonQueryStatement(statement.ConnectionString, null, new ScalarQueryStatement<Object>[0], newStatement.AsNonQueryAction());
         }
 
         public static NonQueryStatement WithNonQueryAction(this Statement statement, NonQueryAction action)
         {
-            return new NonQueryStatement(statement.ConnectionString, action.AsEnumerable(), new ScalarQueryStatement<Object>[0]);
+            return new NonQueryStatement(statement.ConnectionString, null, new ScalarQueryStatement<Object>[0], action);
         }
 
         /*public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
@@ -65,7 +68,7 @@ namespace FluentSql
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this Statement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
-            return new ReaderQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement, readerFunction, new ScalarQueryStatement<Object>[0]);
+            return new ReaderQueryStatement<T>(statement.ConnectionString, null, newQueryStatement, readerFunction, new ScalarQueryStatement<Object>[0]);
         }
 
         public static IEnumerable<NonQueryAction> AsNonQueryActionList(this String statement)
@@ -73,22 +76,23 @@ namespace FluentSql
             return statement.AsNonQueryAction().AsEnumerable();
         }
 
-        public static NonQueryStatement WithDependency(this NonQueryStatement statement, ScalarQueryStatement<Object> dependency)
+        public static NonQueryStatement WithDependency(this NonQueryStatement statement, String dependenceText)
         {
+            ScalarQueryStatement<Object> dependency = new ScalarQueryStatement<object>(statement.ConnectionString, null, dependenceText, new ScalarQueryStatement<Object>[0]);
             var dependencies = statement.Dependencies.Union(dependency.AsEnumerable());
-            return new NonQueryStatement(statement.ConnectionString, statement.NonQueryActions, dependencies);
+            return new NonQueryStatement(statement.ConnectionString, statement.SiblingStatement, dependencies, statement.Action);
         }
 
         public static ScalarQueryStatement<T> WithDependency<T>(this ScalarQueryStatement<T> statement, ScalarQueryStatement<Object> dependency)
         {
             var dependencies = statement.Dependencies.Union(dependency.AsEnumerable());
-            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, statement.ScalarAction, dependencies);
+            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.SiblingStatement, statement.ScalarAction, dependencies);
         }
 
         public static ReaderQueryStatement<T> WithDependency<T>(this ReaderQueryStatement<T> statement, ScalarQueryStatement<Object> dependency)
         {
             var dependencies = statement.Dependencies.Union(dependency.AsEnumerable());
-            return new ReaderQueryStatement<T>(statement.ConnectionString, statement.NonQueryActions, statement.ScalarAction, statement.ParseLine, dependencies);
+            return new ReaderQueryStatement<T>(statement.ConnectionString, statement.SiblingStatement, statement.ScalarAction, statement.ParseLine, dependencies);
         }
 
         private static IEnumerable<T> AsEnumerable<T>(this T newQueryStatement)

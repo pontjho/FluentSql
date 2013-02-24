@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FluentSql
 {
-    public class ExecutableStatement : Statement
+    public abstract class ExecutableStatement : Statement
     {
-        internal IEnumerable<NonQueryAction> NonQueryActions { get; private set; }
+        internal NonQueryStatement SiblingStatement { get; private set; }
         internal IEnumerable<ScalarQueryStatement<Object>> Dependencies { get; private set; }
 
-        public ExecutableStatement(String connectionString, 
-                                   IEnumerable<NonQueryAction> actions,
+        public ExecutableStatement(String connectionString,
+                                   NonQueryStatement siblingStatement,
                                    IEnumerable<ScalarQueryStatement<Object>> dependencies)
             : base(connectionString)
         {
-            this.NonQueryActions = actions;
+            this.SiblingStatement = siblingStatement;
             this.Dependencies = dependencies;
         }
     }

@@ -13,14 +13,36 @@ namespace FluentSql
         internal Func<SqlDataReader, T> ParseLine { get; private set; }
 
         internal ReaderQueryStatement(String connectionString, 
-                                      IEnumerable<NonQueryAction> nonQueryActions, 
+                                      NonQueryStatement siblingStatement, 
                                       String scalarAction,
                                       Func<SqlDataReader, T> lineReader,
                                       IEnumerable<ScalarQueryStatement<Object>> dependencies)
-            : base(connectionString, nonQueryActions, dependencies)
+            : base(connectionString, siblingStatement, dependencies)
         {
             this.ScalarAction = scalarAction;
             this.ParseLine = lineReader;
+        }
+
+        public IEnumerable<T> Execute()
+        {
+            using (var cn = new SqlConnection(this.ConnectionString))
+            {
+                cn.Open();
+
+                if(this.SiblingStatement != null)
+                    SiblingStatement.ExecuteSiblings(cn);
+
+                var cmd = new SqlCommand(this.ScalarAction, cn);
+
+                var resultSet = cmd.ExecuteReader();
+
+                var theReturn = new List<T>();
+                while (resultSet.Read())
+                {
+                    theReturn.Add(this.ParseLine(resultSet));
+                }
+                return theReturn;
+            }
         }
     }
 }
