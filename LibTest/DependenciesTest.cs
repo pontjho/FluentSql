@@ -30,11 +30,11 @@ namespace LibTest
         [TestMethod]
         public void GivenAQueryWithDependencies_WhenExecutingTheQuery_TheResultOfTheSubQueriesMustBeFedToTheMainQuery()
         {
-            /*var query = Fluent.Default.WithNonQueryStatement("insert into TestTable (a, b) values ({0}, {1})")
+            var query = Fluent.Default.WithNonQueryStatement("insert into TestTable (a, b) values ({0}, {1})")
                                           .WithDependency("select a from TestTable where a = 5")
                                           .WithDependency("select a from TestTable where a = 7");
 
-            query.Execute();*/
+            query.Execute();
 
             Tuple<int, int> theReturn = Fluent.Default.WithReaderQueryStatement<Tuple<int, int>>("select a, b from TestTable", ReadFromTest)
                                                       .Execute()
