@@ -64,10 +64,10 @@ namespace FluentSql
             return new NonQueryStatement(statement.ConnectionString, null, new ScalarQueryStatement<Object>[0], action);
         }
 
-        /*public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
+        public static ScalarQueryStatement<T> WithScalarQueryStatement<T>(this Statement statement, String newQueryStatement)
         {
-            return new ScalarQueryStatement<T>(statement.ConnectionString, new NonQueryAction[0], newQueryStatement);
-        }*/
+            return new ScalarQueryStatement<T>(statement.ConnectionString, null, newQueryStatement, new ScalarQueryStatement<Object>[0]);
+        }
 
         public static ReaderQueryStatement<T> WithReaderQueryStatement<T>(this Statement statement, String newQueryStatement, Func<SqlDataReader, T> readerFunction)
         {
@@ -81,9 +81,22 @@ namespace FluentSql
 
         public static NonQueryStatement WithDependency(this NonQueryStatement statement, String dependenceText)
         {
-            ScalarQueryStatement<Object> dependency = new ScalarQueryStatement<object>(statement.ConnectionString, null, dependenceText, new ScalarQueryStatement<Object>[0]);
+            ScalarQueryStatement<Object> dependency = CreateScalarQuery(statement, dependenceText);
             var dependencies = statement.Dependencies.Union(dependency.AsEnumerable());
             return new NonQueryStatement(statement.ConnectionString, statement.SiblingStatement, dependencies, statement.Action);
+        }
+
+        private static ScalarQueryStatement<object> CreateScalarQuery(ExecutableStatement statement, String dependenceText)
+        {
+            ScalarQueryStatement<Object> dependency = new ScalarQueryStatement<object>(statement.ConnectionString, null, dependenceText, new ScalarQueryStatement<Object>[0]);
+            return dependency;
+        }
+
+        public static ScalarQueryStatement<T> WithDependency<T>(this ScalarQueryStatement<T> statement, String dependenceText)
+        {
+            var dependency = CreateScalarQuery(statement, dependenceText);
+            var dependencies = statement.Dependencies.Union(dependency.AsEnumerable());
+            return new ScalarQueryStatement<T>(statement.ConnectionString, statement.SiblingStatement, statement.ScalarAction, dependencies);
         }
 
         public static ScalarQueryStatement<T> WithDependency<T>(this ScalarQueryStatement<T> statement, ScalarQueryStatement<Object> dependency)

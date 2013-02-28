@@ -24,7 +24,9 @@ namespace FluentSql
             if (this.SiblingStatement != null)
                 this.SiblingStatement.ExecuteSiblings(cn, trans);
 
-            var cmd = new SqlCommand(this.ScalarAction, cn, trans);
+            var actionText = String.Format(this.ScalarAction, base.EvaluateDependencies(cn, trans));
+
+            var cmd = new SqlCommand(actionText, cn, trans);
             try
             {
                 return (T)(Object)Int32.Parse(cmd.ExecuteScalar().ToString());

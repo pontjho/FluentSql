@@ -44,6 +44,20 @@ namespace LibTest
             Assert.AreEqual(Tuple.Create(60, 80), theReturn);
         }
 
+        [TestMethod]
+        public void GivenAQueryWithANestedDependency_WhenExecutingTheQuery_TheDependencyChainMustBeMaintained()
+        {
+            var def = Fluent.Default;
+            var query = Fluent.Default.WithNonQueryStatement("use Test")
+                                      .WithScalarQueryStatement<int>("select 1 + {0}")
+                                          .WithDependency<int>(def.WithScalarQueryStatement<Object>("select 2 + {0}")
+                                                                      .WithDependency("select 3"));
+
+            var theReturn = query.Execute();
+
+            Assert.AreEqual(6, theReturn);
+        }
+
         private Tuple<int, int> ReadFromTest(SqlDataReader reader)
         {
             return Tuple.Create(reader.GetInt32(0), reader.GetInt32(1));
