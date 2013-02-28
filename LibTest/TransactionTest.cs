@@ -34,7 +34,7 @@ namespace LibTest
                 Fluent.Default.WithNonQueryStatement("use Test")
                               .WithNonQueryStatement("insert into TestTable (a , b) values (7, 8)")
                               .WithNonQueryAction(act)
-                              .Execute();
+                              .ExecuteAsTransaction();
             }
             catch (Exception)
             {
@@ -45,7 +45,7 @@ namespace LibTest
             }
         }
 
-        public static void ThrowException(SqlConnection conn, params Object[] notUsed)
+        public static void ThrowException(SqlConnection conn, SqlTransaction trans, params Object[] notUsed)
         {
             throw new Exception("Kupow");
         }

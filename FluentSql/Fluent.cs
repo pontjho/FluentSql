@@ -13,10 +13,10 @@ namespace FluentSql
         private static String config = ConfigurationManager.ConnectionStrings["Default"].ConnectionString;
         public static Statement Default = new Statement(config);
 
-        internal static void ExecuteSqlCode(string sqlCommandText, SqlConnection conn, params Object[] parameters)
+        internal static void ExecuteSqlCode(string sqlCommandText, SqlConnection conn, SqlTransaction trans, params Object[] parameters)
         {
             var text = String.Format(sqlCommandText, parameters);
-            var cmd = new SqlCommand(text, conn);
+            var cmd = new SqlCommand(text, conn, trans);
             cmd.ExecuteNonQuery();
         }
 
@@ -36,7 +36,7 @@ namespace FluentSql
 
         private static NonQueryAction AsParameterisedDelegate(String stuff)
         {
-            return (conn, paramis) => Fluent.ExecuteSqlCode(stuff, conn, paramis);
+            return (conn, trans, paramis) => Fluent.ExecuteSqlCode(stuff, conn, trans, paramis);
         }
 
         private static NonQueryAction AsNonQueryAction(this String newStatement)

@@ -6,5 +6,5 @@ using System.Text;
 
 namespace FluentSql
 {
-    public delegate void NonQueryAction(SqlConnection conn, params Object[] paramaters);
+    public delegate void NonQueryAction(SqlConnection conn, SqlTransaction trans, params Object[] paramaters);
 }

@@ -20,11 +20,11 @@ namespace FluentSql
             this.Action = action;
         }
 
-        internal void ExecuteSiblings(SqlConnection cn)
+        internal void ExecuteSiblings(SqlConnection cn, SqlTransaction trans)
         {
             if (SiblingStatement != null)
-                SiblingStatement.ExecuteSiblings(cn);
-            this.Action(cn, base.EvaluateDependencies(cn));
+                SiblingStatement.ExecuteSiblings(cn, trans);
+            this.Action(cn, trans, base.EvaluateDependencies(cn, trans));
         }
 
         public void Execute()
@@ -32,13 +32,29 @@ namespace FluentSql
             using (var cn = new SqlConnection(this.ConnectionString))
             {
                 cn.Open();
-                //using (var trans = cn.BeginTransaction())
+                using (var trans = cn.BeginTransaction())
+                {
+                    trans.Commit();
+                    if (SiblingStatement != null)
+                        SiblingStatement.ExecuteSiblings(cn, trans);
+                    this.Action(cn, trans, base.EvaluateDependencies(cn, trans));
+
+                }
+            }
+        }
+
+        public void ExecuteAsTransaction()
+        {
+            using (var cn = new SqlConnection(this.ConnectionString))
+            {
+                cn.Open();
+                using (var trans = cn.BeginTransaction())
                 {
                     if (SiblingStatement != null)
-                        SiblingStatement.ExecuteSiblings(cn);
-                    this.Action(cn, base.EvaluateDependencies(cn));
+                        SiblingStatement.ExecuteSiblings(cn, trans);
+                    this.Action(cn, trans, base.EvaluateDependencies(cn, trans));
 
-                    //trans.Commit();
+                    trans.Commit();
                 }
             }
         }

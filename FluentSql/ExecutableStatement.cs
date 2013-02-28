@@ -21,9 +21,9 @@ namespace FluentSql
             this.Dependencies = dependencies;
         }
 
-        internal Object[] EvaluateDependencies(SqlConnection cn)
+        internal Object[] EvaluateDependencies(SqlConnection cn, SqlTransaction trans)
         {
-            return this.Dependencies.Select(dep => dep.Execute(cn)).ToArray();
+            return this.Dependencies.Select(dep => dep.Execute(cn, trans)).ToArray();
         }
     }
 }

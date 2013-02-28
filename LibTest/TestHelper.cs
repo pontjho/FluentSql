@@ -21,10 +21,10 @@ namespace LibTest
             }
         }
 
-        public static void CreateDatabase(SqlConnection conn, String databaseName)
+        public static void CreateDatabase(SqlConnection conn, SqlTransaction trans, String databaseName)
         {
-            var command = conn.CreateCommand();
-            command.CommandText = String.Format("create database {0}", databaseName);
+            var CommandText = String.Format("create database {0}", databaseName);
+            var command = new SqlCommand(CommandText, conn, trans);
             command.ExecuteNonQuery();
         }
     }

@@ -24,7 +24,7 @@ namespace LibTest
         [TestMethod]
         public void GivenAQueryToCreateADbWithASingleTable_WhenExecutingTheQuery_TheMasterDbWillContainTheTable()
         {
-            NonQueryAction function = (conn, paramis) => TestHelper.CreateDatabase(conn, "Test");
+            NonQueryAction function = (conn, trans, paramis) => TestHelper.CreateDatabase(conn, trans, "Test");
                 //CurryExtension.Curry<SqlConnection, String>(TestHelper.CreateDatabase, "Test").Invoke;
             var query = Fluent.Default.WithNonQueryAction(function)
                                       .WithNonQueryStatement("use Test")

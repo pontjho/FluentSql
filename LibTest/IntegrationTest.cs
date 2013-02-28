@@ -14,6 +14,7 @@ namespace LibTest
         public void Initialize()
         {
             Fluent.Default.WithNonQueryStatement("if exists(select * from sys.databases where name = 'Test') drop database Test").Execute();
+            Fluent.Default.WithNonQueryStatement("create database Test");
         }
 
         [TestCleanup]

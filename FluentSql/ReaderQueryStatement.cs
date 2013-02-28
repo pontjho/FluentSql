@@ -29,19 +29,49 @@ namespace FluentSql
             {
                 cn.Open();
 
-                if(this.SiblingStatement != null)
-                    SiblingStatement.ExecuteSiblings(cn);
-
-                var cmd = new SqlCommand(this.ScalarAction, cn);
-
-                var resultSet = cmd.ExecuteReader();
-
-                var theReturn = new List<T>();
-                while (resultSet.Read())
+                using (var trans = cn.BeginTransaction())
                 {
-                    theReturn.Add(this.ParseLine(resultSet));
+                    trans.Commit();
+                    if (this.SiblingStatement != null)
+                        SiblingStatement.ExecuteSiblings(cn, trans);
+
+                    var cmd = new SqlCommand(this.ScalarAction, cn, trans);
+
+                    var resultSet = cmd.ExecuteReader();
+
+                    var theReturn = new List<T>();
+                    while (resultSet.Read())
+                    {
+                        theReturn.Add(this.ParseLine(resultSet));
+                    }
+                    return theReturn;
                 }
-                return theReturn;
+            }
+        }
+
+        public IEnumerable<T> ExecuteAsTransaction()
+        {
+            using (var cn = new SqlConnection(this.ConnectionString))
+            {
+                cn.Open();
+
+                using (var trans = cn.BeginTransaction())
+                {
+                    if (this.SiblingStatement != null)
+                        SiblingStatement.ExecuteSiblings(cn, trans);
+
+                    var cmd = new SqlCommand(this.ScalarAction, cn, trans);
+
+                    var resultSet = cmd.ExecuteReader();
+
+                    var theReturn = new List<T>();
+                    while (resultSet.Read())
+                    {
+                        theReturn.Add(this.ParseLine(resultSet));
+                    }
+                    trans.Commit();
+                    return theReturn;
+                }
             }
         }
     }

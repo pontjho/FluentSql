@@ -19,12 +19,12 @@ namespace FluentSql
             this.ScalarAction = scalarAction;
         }
 
-        public T Execute(SqlConnection cn)
+        public T Execute(SqlConnection cn, SqlTransaction trans)
         {
             if (this.SiblingStatement != null)
-                this.SiblingStatement.ExecuteSiblings(cn);
+                this.SiblingStatement.ExecuteSiblings(cn, trans);
 
-            var cmd = new SqlCommand(this.ScalarAction, cn);
+            var cmd = new SqlCommand(this.ScalarAction, cn, trans);
             try
             {
                 return (T)(Object)Int32.Parse(cmd.ExecuteScalar().ToString());
@@ -40,7 +40,26 @@ namespace FluentSql
             using (var cn = new SqlConnection(this.ConnectionString))
             {
                 cn.Open();
-                return Execute(cn);
+                using (var trans = cn.BeginTransaction())
+                {
+                    trans.Commit();
+                    var theReturn = Execute(cn, trans);
+                    return theReturn;
+                }
+            }
+        }
+
+        public T ExecuteAsTransaction()
+        {
+            using (var cn = new SqlConnection(this.ConnectionString))
+            {
+                cn.Open();
+                using (var trans = cn.BeginTransaction())
+                {
+                    var theReturn = Execute(cn, trans);
+                    trans.Commit();
+                    return theReturn;
+                }
             }
         }
     }
