@@ -37,10 +37,11 @@ namespace LibTest
 
             query.Execute();
 
-            /*Tuple<int, int> theReturn = Fluent.Default.WithReaderQueryStatement<Tuple<int, int>>("select a, b from TestTable where a", ReadFromTest)
+            Tuple<int, int> theReturn = Fluent.Default.WithNonQueryStatement("use Test")
+                                                      .WithReaderQueryStatement<Tuple<int, int>>("select a, b from TestTable where a not in (5, 7)", ReadFromTest)
                                                       .Execute()
                                                       .First();
-            Assert.AreEqual(Tuple.Create(6, 8), theReturn);*/
+            Assert.AreEqual(Tuple.Create(60, 80), theReturn);
         }
 
         private Tuple<int, int> ReadFromTest(SqlDataReader reader)

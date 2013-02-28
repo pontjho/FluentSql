@@ -20,14 +20,6 @@ namespace FluentSql
             cmd.ExecuteNonQuery();
         }
 
-        /*internal static void ExecuteBulk(this ExecutableStatement head, SqlConnection connection)
-        {
-            //actions.ToList().ForEach(action => action(connection));
-            if (head.SiblingStatement != null)
-                ExecuteBulk(head.SiblingStatement, connection);
-            head.Action();
-        }*/
-
         public static NonQueryStatement WithNonQueryStatement(this NonQueryStatement statement, String newStatement)
         {
             //var newQueries = statement.NonQueryActions.Union(new NonQueryAction[] { newStatement.AsNonQueryAction() });
